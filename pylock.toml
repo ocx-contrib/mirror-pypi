@@ -1,0 +1,14 @@
+# PEP 751 lock for pycowsay, generated via:
+#   uv pip compile requirements.in --python-version 3.14.6 --format pylock.toml
+# requires-python relaxed from uv's ">=3.14.6" (uv#15995: inherits the
+# compiling interpreter's exact patch) to the minor floor so marker eval
+# isn't over-narrow against other 3.14.x interpreters.
+lock-version = "1.0"
+created-by = "uv"
+requires-python = ">=3.14"
+
+[[packages]]
+name = "pycowsay"
+version = "0.0.0.2"
+sdist = { url = "https://files.pythonhosted.org/packages/b5/07/ca61ee269a7e2a842af0d310edd4549eda080cb921bcdfe59e481e8492cf/pycowsay-0.0.0.2.tar.gz", upload-time = 2023-10-18T02:48:51Z, size = 3804, hashes = { sha256 = "d112c4ce55b04dbc363c5a8957b80a0dc7459e864866d6e0202d15a95633bcf4" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/eb/bd/17f894b13037499e615048a6daeb9cae28142ee85ce6eb8d24d10504860b/pycowsay-0.0.0.2-py3-none-any.whl", upload-time = 2023-10-18T02:48:50Z, size = 4020, hashes = { sha256 = "5c03d8a9c7666ec102aaed4bbd6c7d35228489ce236f95f6e5d079529c6a5050" } }]

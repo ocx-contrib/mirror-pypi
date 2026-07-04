@@ -1,0 +1,26 @@
+name: bootstrap
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      # No auth inputs: pulling dev-pinned tools from dev.ocx.sh is anonymous
+      # read access (only pushing to ocx.sh — the release registry — needs
+      # OCX_MIRROR_REGISTRY_TOKEN/_USER). Requires ocx.lock committed
+      # alongside ocx.toml — `ocx pull` (which setup-ocx runs when ocx.toml
+      # is present) exits 78 without it.
+      - uses: ocx-sh/setup-ocx@8cd2f38eed07c9b79aaed22e61f9ba6b36e967a3  # v1.2.2
+      - name: Prove dev binary bootstrap
+        run: |
+          set -euo pipefail
+          # `ocx-mirror` has no `--version`; `--help` exits 0 and proves the
+          # dev-pinned binary resolved from dev.ocx.sh and runs. `ocx version`
+          # prints the pinned dev cli version.
+          ocx version
+          ocx-mirror --help

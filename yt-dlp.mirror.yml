@@ -1,0 +1,31 @@
+# Mirror spec: yt-dlp — corpus app W3.3. Pure-python (py3-none-any), a single
+# wheel with no required runtime deps; its optional deps sit behind
+# environment/extra markers that resolve to false for this target (marker forks
+# resolve correctly = the lock is the core wheel alone). Console-script
+# entrypoint `yt-dlp = yt_dlp:main`.
+name: yt-dlp
+target:
+  registry: dev.ocx.sh
+  repository: ocx/yt-dlp
+
+source:
+  type: pylock
+  path: yt-dlp.pylock.toml
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ocx.sh/cpython:3.14.6"
+
+variants:
+  - default: true
+    libc: gnu
+    min_manylinux: "2_28"
+
+tests:
+  - name: smoke
+    script: tests/yt-dlp.smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest

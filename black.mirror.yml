@@ -1,0 +1,31 @@
+# Mirror spec: black — corpus app W3.3. mypyc-compiled: the cp314
+# manylinux_2_28 wheel is selected for 3.14.6/cp314 (not the py3-none-any
+# fallback), so this exercises the compiled-extension path and a multi-wheel
+# env (black + click + mypy-extensions + packaging + pathspec + platformdirs +
+# pytokens). Plain `black` (no [d]/[jupyter] extras) → blackd not synthesized.
+name: black
+target:
+  registry: dev.ocx.sh
+  repository: ocx/black
+
+source:
+  type: pylock
+  path: black.pylock.toml
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ocx.sh/cpython:3.14.6"
+
+variants:
+  - default: true
+    libc: gnu
+    min_manylinux: "2_28"
+
+tests:
+  - name: smoke
+    script: tests/black.smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest

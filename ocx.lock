@@ -1,9 +1,9 @@
 [metadata]
 lock_version = 2
 declaration_hash_version = 1
-declaration_hash = "sha256:3395f14805030509606513a5d666b94332ae9ce9fdf0980d29bb1a352e5a9c4a"
+declaration_hash = "sha256:489fd2c5fad52030f700a562c4385c421966a2450641c60f90549f1db13ec2d0"
 generated_by = "ocx 0.4.1"
-generated_at = "2026-07-04T14:31:03Z"
+generated_at = "2026-07-04T15:09:27Z"
 
 [[tool]]
 name = "cli"
@@ -24,12 +24,12 @@ group = "default"
 repository = "dev.ocx.sh/ocx/mirror"
 
 [tool.platforms]
-"darwin/amd64" = "sha256:5a44513206ab21ef1e793b07b2942465265a9862a7d7d5873e60c9926d228da1"
-"darwin/arm64" = "sha256:794d01ad47b74bfeed51861b978f0d86c1ee172653d45c621d4f27bf29edfa5d"
-"linux/amd64" = "sha256:aabb7a8535155ffe0f38d2227a508da9245ad99a19ad891445a62720d1672f4a"
-"linux/arm64" = "sha256:c22588666ad7d944a411a136b5495359bf0a0b3d101cc92c3d165f368a956bd8"
-"windows/amd64" = "sha256:03e9c7755b322993c5e0d17b7214745f0be5f50b1160623759e9f6eb3755e087"
-"windows/arm64" = "sha256:5452ece0fd1cd38df72d132ad51994a568e957bf950fe624df6d9b93b39544ff"
+"darwin/amd64" = "sha256:69ee7845646fc082eee9b47225d4637c16375e5ae81aab8bddd131c54a72ae05"
+"darwin/arm64" = "sha256:5f0d6e97f049a8925d04ea81f9aeea73c6e491d910b1c751f571e336e556281b"
+"linux/amd64" = "sha256:6817c9da5e540b407c29ae05573900607f7e073db05dd72d4fb5eb7110d23406"
+"linux/arm64" = "sha256:a1b71d07ce94b6fba30c2ebc8acf1fd705749b829514ebd995cc53ea22e9a2c6"
+"windows/amd64" = "sha256:96b77a7578a963dc5fcf6d1c10d92c04b9fc3f86c2cf43720d5b0d0ab3954e52"
+"windows/arm64" = "sha256:0e460ea5b0f9d809e4b2e924050ed6b813c5575917ae8eb34e5f86b931de7324"
 
 [[tool]]
 name = "uv"

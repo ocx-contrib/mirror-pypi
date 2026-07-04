@@ -9,7 +9,7 @@ target:
 
 source:
   type: pylock
-  path: pylock.toml
+  path: pycowsay.pylock.toml
 
 python:
   version: "3.14.6"
@@ -23,7 +23,7 @@ variants:
 
 tests:
   - name: smoke
-    script: tests/smoke.star
+    script: tests/pycowsay.smoke.star
 
 platforms:
   linux/amd64:

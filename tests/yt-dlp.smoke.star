@@ -7,4 +7,6 @@ expect.ok(r)
 
 # Tier 2: real output — `--version` prints the locked calendar version,
 # proving the entrypoint dispatched into yt_dlp.main, not an empty shim.
-expect.contains(r.stdout, "2026.6.9")
+# yt-dlp zero-pads its internal __version__ (2026.06.09) vs the PyPI-normalized
+# tag 2026.6.9 the package is published under — assert the runtime form.
+expect.contains(r.stdout, "2026.06.09")

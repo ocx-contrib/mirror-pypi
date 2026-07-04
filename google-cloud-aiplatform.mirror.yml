@@ -1,0 +1,32 @@
+# Mirror spec: google-cloud-aiplatform[full] — corpus app W3.4 (hardest).
+# 142-package closure, a PEP 420 namespace union: many google.* wheels
+# contribute to the shared google/ tree with no __init__.py, so the collide
+# pass must permit namespace-package directory overlap. A library (no console
+# script) — validated by a python3 import smoke. The spec name is the PyPI
+# distribution name so pylock's PEP 503 app-name match resolves it.
+name: google-cloud-aiplatform
+target:
+  registry: dev.ocx.sh
+  repository: ocx/google-cloud-aiplatform
+
+source:
+  type: pylock
+  path: aiplatform.pylock.toml
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ocx.sh/cpython:3.14.6"
+
+variants:
+  - default: true
+    libc: gnu
+    min_manylinux: "2_28"
+
+tests:
+  - name: import
+    script: tests/google-cloud-aiplatform.smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest

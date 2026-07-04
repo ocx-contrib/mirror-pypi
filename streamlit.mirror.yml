@@ -1,0 +1,30 @@
+# Mirror spec: streamlit — corpus app W3.4 (hard). Pure top wheel over a heavy
+# 42-package closure: numpy/pandas/pyarrow ship cp314 manylinux_2_28 compiled
+# wheels, so the env is a large multi-layer union that must import cleanly.
+# Console-script entrypoint `streamlit = streamlit.web.cli:main`.
+name: streamlit
+target:
+  registry: dev.ocx.sh
+  repository: ocx/streamlit
+
+source:
+  type: pylock
+  path: streamlit.pylock.toml
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ocx.sh/cpython:3.14.6"
+
+variants:
+  - default: true
+    libc: gnu
+    min_manylinux: "2_28"
+
+tests:
+  - name: smoke
+    script: tests/streamlit.smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest

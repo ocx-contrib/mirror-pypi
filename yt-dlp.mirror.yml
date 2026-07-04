@@ -29,3 +29,7 @@ tests:
 platforms:
   linux/amd64:
     runner: ubuntu-latest
+  linux/arm64:
+    runner: ubuntu-24.04-arm
+  darwin/arm64:
+    runner: macos-14

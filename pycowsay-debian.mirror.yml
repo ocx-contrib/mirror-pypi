@@ -1,0 +1,38 @@
+# Mirror spec: pycowsay-debian — the debian/glibc container test leg (goal
+# finalization item 2, "debian leg sanity-checks the glibc floor").
+#
+# The glibc counterpart to pycowsay-musl: same pycowsay lock, but the default
+# variant is `libc: gnu` (min_manylinux 2_28) with the stock glibc CPython, and
+# the leg runs inside debian:12 — an older glibc than the ubuntu-latest runner —
+# so a green here sanity-checks the manylinux glibc floor. Fresh target repo so
+# discover schedules real work.
+name: pycowsay-debian
+target:
+  registry: dev.ocx.sh
+  repository: ocx/pycowsay-debian
+
+source:
+  type: pylock
+  path: pycowsay.pylock.toml
+  package: pycowsay
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ocx.sh/cpython:3.14.6"
+
+variants:
+  - default: true
+    libc: gnu
+    min_manylinux: "2_28"
+
+tests:
+  - name: smoke
+    script: tests/pycowsay.smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest
+    containers:
+      - image: debian:12
+        id: debian

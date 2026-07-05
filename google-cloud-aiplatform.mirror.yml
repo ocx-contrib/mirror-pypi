@@ -4,6 +4,13 @@
 # pass must permit namespace-package directory overlap. A library (no console
 # script) — validated by a python3 import smoke. The spec name is the PyPI
 # distribution name so pylock's PEP 503 app-name match resolves it.
+#
+# No musl leg (W4, plan_python_mirror_v2): V2's static lock analysis found 29
+# of 140 locked packages ship no musllinux wheel and no pure fallback for
+# cp314/amd64 — a musl leg would fail on these transitive deps regardless of
+# interpreter. Stays on the gnu/manylinux variant; the debian:12 container leg
+# (older glibc than the ubuntu-latest runner ships) sanity-checks the
+# manylinux_2_28 floor.
 name: google-cloud-aiplatform
 target:
   registry: dev.ocx.sh
@@ -30,3 +37,5 @@ tests:
 platforms:
   linux/amd64:
     runner: ubuntu-latest
+    containers:
+      - image: debian:12

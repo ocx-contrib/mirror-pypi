@@ -2,6 +2,13 @@
 # 42-package closure: numpy/pandas/pyarrow ship cp314 manylinux_2_28 compiled
 # wheels, so the env is a large multi-layer union that must import cleanly.
 # Console-script entrypoint `streamlit = streamlit.web.cli:main`.
+#
+# No musl leg (W4, plan_python_mirror_v2): V2's static lock analysis found 8
+# of 42 locked packages (including numpy/pandas/pyarrow) ship no musllinux
+# wheel and no pure fallback for cp314/amd64 — a musl leg would fail on these
+# transitive deps regardless of interpreter. Stays on the gnu/manylinux
+# variant; the debian:12 container leg (older glibc than the ubuntu-latest
+# runner ships) sanity-checks the manylinux_2_28 floor.
 name: streamlit
 target:
   registry: dev.ocx.sh
@@ -28,3 +35,5 @@ tests:
 platforms:
   linux/amd64:
     runner: ubuntu-latest
+    containers:
+      - image: debian:12

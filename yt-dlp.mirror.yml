@@ -1,8 +1,9 @@
-# Mirror spec: yt-dlp — corpus app W3.3. Pure-python (py3-none-any), a single
-# wheel with no required runtime deps; its optional deps sit behind
-# environment/extra markers that resolve to false for this target (marker forks
-# resolve correctly = the lock is the core wheel alone). Console-script
-# entrypoint `yt-dlp = yt_dlp:main`.
+# Mirror spec: yt-dlp — corpus app W3.3, migrated to the universal model
+# (W4, plan_python_mirror_v2). Pure-python (py3-none-any), so the fully-static
+# musl CPython (V1c) applies directly — no dlopen needed, wheel_priority is
+# belt-and-suspenders. One platform leg proves both floors: debian:12 (glibc)
+# and alpine:3.20 (musl) containers. Console-script entrypoint `yt-dlp =
+# yt_dlp:main`.
 name: yt-dlp
 target:
   registry: dev.ocx.sh
@@ -15,12 +16,13 @@ source:
 python:
   version: "3.14.6"
   abi: cp314
-  interpreter_package: "ocx.sh/cpython:3.14.6"
+  interpreter_package: "dev.ocx.sh/ocx/cpython-musl:3.14.6"
 
 variants:
   - default: true
-    libc: gnu
-    min_manylinux: "2_28"
+    libc: musl
+    min_musllinux: "1_2"
+    wheel_priority: ["any"]
 
 tests:
   - name: smoke
@@ -29,7 +31,6 @@ tests:
 platforms:
   linux/amd64:
     runner: ubuntu-latest
-  linux/arm64:
-    runner: ubuntu-24.04-arm
-  darwin/arm64:
-    runner: macos-14
+    containers:
+      - image: debian:12
+      - image: alpine:3.20

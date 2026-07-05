@@ -1,8 +1,9 @@
-# Mirror spec: black — corpus app W3.3. mypyc-compiled: the cp314
-# manylinux_2_28 wheel is selected for 3.14.6/cp314 (not the py3-none-any
-# fallback), so this exercises the compiled-extension path and a multi-wheel
-# env (black + click + mypy-extensions + packaging + pathspec + platformdirs +
-# pytokens). Plain `black` (no [d]/[jupyter] extras) → blackd not synthesized.
+# Mirror spec: black — corpus app W3.3, migrated to the universal model (W4,
+# plan_python_mirror_v2). black ships a compiled cp314 manylinux mypyc wheel,
+# but the fully-static musl CPython (V1c) can't dlopen it — wheel_priority
+# forces the py3-none-any fallback to win instead (trades away the mypyc
+# speedup for one universal build). One platform leg proves both floors:
+# debian:12 (glibc) and alpine:3.20 (musl) containers.
 name: black
 target:
   registry: dev.ocx.sh
@@ -15,12 +16,13 @@ source:
 python:
   version: "3.14.6"
   abi: cp314
-  interpreter_package: "ocx.sh/cpython:3.14.6"
+  interpreter_package: "dev.ocx.sh/ocx/cpython-musl:3.14.6"
 
 variants:
   - default: true
-    libc: gnu
-    min_manylinux: "2_28"
+    libc: musl
+    min_musllinux: "1_2"
+    wheel_priority: ["any"]
 
 tests:
   - name: smoke
@@ -29,7 +31,6 @@ tests:
 platforms:
   linux/amd64:
     runner: ubuntu-latest
-  linux/arm64:
-    runner: ubuntu-24.04-arm
-  darwin/arm64:
-    runner: macos-14
+    containers:
+      - image: debian:12
+      - image: alpine:3.20

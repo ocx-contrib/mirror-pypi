@@ -98,7 +98,9 @@ jobs:
           - platform: linux/amd64
             platform_slug: linux_amd64
             runner: ubuntu-latest
-            container_id: _native_
+            container_id: debian_12
+            container_image: "debian:12"
+            container_libc: "gnu"
             shell: bash
             tests:
               - name: import
@@ -156,6 +158,41 @@ jobs:
             for rel in $(printf '%s' "${ENV_JSON}" | jq -r '.layers[].path // empty' 2>/dev/null || true); do
               LAYERS="${LAYERS} ${VERSION_DIR}/${rel}"
             done
+            # Container legs: provision a libc-matched ocx release binary once and
+            # run `ocx package test` inside `docker run <image>`; native legs call
+            # `ocx` directly. The env under test is self-contained (local layers);
+            # only its private interpreter is pulled (anonymously) from the registry.
+            CONTAINER_IMAGE="${{ matrix.container_image }}"
+            if [ -n "${CONTAINER_IMAGE}" ]; then
+              case "${{ matrix.platform }}" in
+                linux/amd64) OCX_ARCH=x86_64 ;;
+                linux/arm64) OCX_ARCH=aarch64 ;;
+                *) echo "::error::container test legs are linux-only (got ${{ matrix.platform }})"; exit 1 ;;
+              esac
+              OCX_TRIPLE="${OCX_ARCH}-unknown-linux-${{ matrix.container_libc }}"
+              OCX_CONTAINER_BIN="${RUNNER_TEMP}/ocx-${OCX_TRIPLE}/ocx"
+              if [ ! -x "${OCX_CONTAINER_BIN}" ]; then
+                curl -fsSL "https://github.com/ocx-sh/ocx/releases/download/v0.4.1/ocx-${OCX_TRIPLE}.tar.xz" \
+                  | tar -xJ -C "${RUNNER_TEMP}"
+              fi
+              # The gnu ocx verifies TLS against the system CA store, which a
+              # minimal base image (e.g. debian:12) does not carry; mount the
+              # runner's resolved bundle at the path ocx reads by default.
+              # (The musl ocx bundles webpki roots, so this is a no-op there.)
+              OCX_CA_BUNDLE=$(realpath /etc/ssl/certs/ca-certificates.crt 2>/dev/null || echo /etc/ssl/certs/ca-certificates.crt)
+            fi
+            ocx_test() {
+              if [ -n "${CONTAINER_IMAGE}" ]; then
+                docker run --rm -i --platform "${{ matrix.platform }}" \
+                  -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -w "${GITHUB_WORKSPACE}" \
+                  -v "${OCX_CONTAINER_BIN}:/usr/local/bin/ocx:ro" \
+                  -v "${OCX_CA_BUNDLE}:/etc/ssl/certs/ca-certificates.crt:ro" \
+                  -e OCX_HOME=/tmp/ocx-home -e OCX_NO_UPDATE_CHECK=1 \
+                  "${CONTAINER_IMAGE}" ocx "$@"
+              else
+                ocx "$@"
+              fi
+            }
             mkdir -p junit
             JUNIT_FILE="junit/junit-${VERSION}-${{ matrix.platform_slug }}-${{ matrix.container_id }}.xml"
             TESTS_JSON='${{ toJson(matrix.tests) }}'
@@ -169,15 +206,15 @@ jobs:
               RC=0
               if [ "${TEST_KIND}" = "command" ]; then
                 TEST_CMD=$(echo "${TESTS_JSON}" | jq -r ".[$i].command")
-                ocx package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/google-cloud-aiplatform:${VERSION}" -m "${METADATA}" ${LAYERS} -- \
+                ocx_test package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/google-cloud-aiplatform:${VERSION}" -m "${METADATA}" ${LAYERS} -- \
                   ${{ matrix.shell }} -c "${TEST_CMD}" || RC=$?
               elif [ "${TEST_KIND}" = "script" ]; then
                 TEST_SCRIPT=$(echo "${TESTS_JSON}" | jq -r ".[$i].script")
-                ocx package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/google-cloud-aiplatform:${VERSION}" -m "${METADATA}" ${LAYERS} \
+                ocx_test package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/google-cloud-aiplatform:${VERSION}" -m "${METADATA}" ${LAYERS} \
                   --script "${TEST_SCRIPT}" || RC=$?
               else
                 TEST_INLINE=$(echo "${TESTS_JSON}" | jq -r ".[$i].script_inline")
-                printf '%s' "${TEST_INLINE}" | ocx package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/google-cloud-aiplatform:${VERSION}" -m "${METADATA}" ${LAYERS} \
+                printf '%s' "${TEST_INLINE}" | ocx_test package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/google-cloud-aiplatform:${VERSION}" -m "${METADATA}" ${LAYERS} \
                   --script - || RC=$?
               fi
               END=$(date +%s)

@@ -1,25 +1,30 @@
-# Mirror spec: pycowsay — first corpus app for the live pylock pipeline
-# (W3.2). Pure-python (py3-none-any), no compiled extensions, so any cp3xx
-# interpreter/ABI works; chosen interpreter matches the newest cpython
-# cascade tag currently live on ocx.sh (3.14.6 / cp314).
+# Mirror spec: pycowsay — live pypi pilot (W4, plan_python_mirror_v2). Index-
+# discovered (no committed lock) and universal: the single default variant
+# depends on the fully-static musl CPython (V1c), which runs unmodified on
+# glibc AND musl hosts but cannot dlopen a compiled extension — wheel_priority
+# forces the pure py3-none-any wheel to win regardless. One platform leg
+# proves both floors: debian:12 (glibc) and alpine:3.20 (musl) containers.
 name: pycowsay
 target:
   registry: dev.ocx.sh
   repository: ocx/pycowsay
 
 source:
-  type: pylock
-  path: pycowsay.pylock.toml
+  type: pypi
+  package: pycowsay
 
 python:
   version: "3.14.6"
   abi: cp314
-  interpreter_package: "ocx.sh/cpython:3.14.6"
+  interpreter_package: "dev.ocx.sh/ocx/cpython-musl:3.14.6"
+  lock:
+    universal: true
 
 variants:
   - default: true
-    libc: gnu
-    min_manylinux: "2_28"
+    libc: musl
+    min_musllinux: "1_2"
+    wheel_priority: ["any"]
 
 tests:
   - name: smoke
@@ -28,7 +33,6 @@ tests:
 platforms:
   linux/amd64:
     runner: ubuntu-latest
-  linux/arm64:
-    runner: ubuntu-24.04-arm
-  darwin/arm64:
-    runner: macos-14
+    containers:
+      - image: debian:12
+      - image: alpine:3.20

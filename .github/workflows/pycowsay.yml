@@ -122,7 +122,7 @@ jobs:
           - platform: linux/amd64
             platform_slug: linux_amd64
             runner: ubuntu-latest
-            container_id: alpine_3.20
+            container_id: alpine_3_20
             container_image: "alpine:3.20"
             container_libc: "musl"
             shell: sh

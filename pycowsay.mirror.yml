@@ -1,9 +1,14 @@
-# Mirror spec: pycowsay — live pypi pilot (W4, plan_python_mirror_v2). Index-
-# discovered (no committed lock) and universal: the single default variant
-# depends on the fully-static musl CPython (V1c), which runs unmodified on
-# glibc AND musl hosts but cannot dlopen a compiled extension — wheel_priority
-# forces the pure py3-none-any wheel to win regardless. One platform leg
-# proves both floors: debian:12 (glibc) and alpine:3.20 (musl) containers.
+# Mirror spec: pycowsay — live pypi pilot (python-mirror-v2 wheels: surface).
+# Index-discovered (no committed lock), universal lock. One package, bare
+# tags: per-platform wheel selection is declared in the `wheels:` map — the
+# plain `linux/amd64` key (default filter ["any"]) publishes a featureless
+# entry that runs on glibc AND musl hosts because its interpreter's linux
+# candidates are statically linked (cannot dlopen compiled extensions; the
+# default ["any"] filter admits only the pure wheel, which is exactly right
+# here). `ocx.sh/cpython` carries darwin/linux/windows candidates in one
+# index, so the single interpreter_package serves every wheels key. The
+# linux leg proves both floors via debian:12 (glibc) + alpine:3.20 (musl)
+# containers; darwin/windows run the same starlark smoke test natively.
 name: pycowsay
 target:
   registry: dev.ocx.sh
@@ -16,15 +21,14 @@ source:
 python:
   version: "3.14.6"
   abi: cp314
-  interpreter_package: "dev.ocx.sh/ocx/cpython-musl:3.14.6"
+  interpreter_package: "ocx.sh/cpython:3.14.6"
   lock:
     universal: true
 
-variants:
-  - default: true
-    libc: musl
-    min_musllinux: "1_2"
-    wheel_priority: ["any"]
+wheels:
+  linux/amd64:
+  darwin/arm64:
+  windows/amd64:
 
 tests:
   - name: smoke
@@ -36,3 +40,7 @@ platforms:
     containers:
       - image: debian:12
       - image: alpine:3.20
+  darwin/arm64:
+    runner: macos-latest
+  windows/amd64:
+    runner: windows-latest

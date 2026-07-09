@@ -2,13 +2,12 @@
 # Index-discovered (no committed lock), universal lock. One package, bare
 # tags: per-platform wheel selection is declared in the `wheels:` map — the
 # plain `linux/amd64` key (default filter ["any"]) publishes a featureless
-# entry that runs on glibc AND musl hosts because its interpreter's linux
-# candidates are statically linked (cannot dlopen compiled extensions; the
-# default ["any"] filter admits only the pure wheel, which is exactly right
-# here). `ocx.sh/cpython` carries darwin/linux/windows candidates in one
-# index, so the single interpreter_package serves every wheels key. The
-# linux leg proves both floors via debian:12 (glibc) + alpine:3.20 (musl)
-# containers; darwin/windows run the same starlark smoke test natively.
+# entry that runs on glibc AND musl hosts because its interpreter's index
+# carries PER-LIBC linux entries (`+libc.glibc`/`+libc.musl` os.features;
+# ocx >= 0.4.2 selects by host libc via can_run) plus darwin/windows — one
+# interpreter_package reference serves every wheels key. The linux leg
+# proves both libcs via debian:12 (glibc) + alpine:3.20 (musl) containers;
+# darwin/windows run the same starlark smoke test natively.
 name: pycowsay
 target:
   registry: dev.ocx.sh
@@ -21,7 +20,7 @@ source:
 python:
   version: "3.14.6"
   abi: cp314
-  interpreter_package: "ocx.sh/cpython:3.14.6"
+  interpreter_package: "dev.ocx.sh/ocx/cpython:3.14.6"
   lock:
     universal: true
 

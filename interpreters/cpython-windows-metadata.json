@@ -1,0 +1,13 @@
+{
+  "type": "bundle",
+  "version": 1,
+  "env": [
+    {
+      "key": "PATH",
+      "value": "${installPath}",
+      "type": "path",
+      "required": true,
+      "visibility": "public"
+    }
+  ]
+}

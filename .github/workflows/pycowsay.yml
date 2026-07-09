@@ -194,6 +194,14 @@ jobs:
               continue
             fi
             VERSION_DIR="bundles/${VERSION}"
+            # The leg's own libc, declared on `--platform` as an os_feature so
+            # dependency resolution (the env's interpreter) can select a
+            # per-libc index entry. Native legs carry no container_libc → bare.
+            TEST_PLATFORM="${{ matrix.platform }}"
+            case "${{ matrix.container_libc }}" in
+              musl) TEST_PLATFORM="${TEST_PLATFORM}+libc.musl" ;;
+              gnu) TEST_PLATFORM="${TEST_PLATFORM}+libc.glibc" ;;
+            esac
             ENV_JSON=$(jq -c --arg p "${{ matrix.platform }}" --arg libc "${{ matrix.container_libc }}" '(if $libc == "musl" then "libc.musl" else "libc.glibc" end) as $feat | ([.envs[] | select(.platform == ($p + "+" + $feat))] + [.envs[] | select(.platform == $p)]) | first // empty' "${VERSION_DIR}/env-manifest.json" 2>/dev/null || true)
             METADATA="${VERSION_DIR}/$(printf '%s' "${ENV_JSON}" | jq -r '.metadata_path // empty' 2>/dev/null || true)"
             LAYERS=""
@@ -248,15 +256,15 @@ jobs:
               RC=0
               if [ "${TEST_KIND}" = "command" ]; then
                 TEST_CMD=$(echo "${TESTS_JSON}" | jq -r ".[$i].command")
-                ocx_test package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/pycowsay:${VERSION}" -m "${METADATA}" ${LAYERS} -- \
+                ocx_test package test --platform "${TEST_PLATFORM}" --identifier "dev.ocx.sh/ocx/pycowsay:${VERSION}" -m "${METADATA}" ${LAYERS} -- \
                   ${{ matrix.shell }} -c "${TEST_CMD}" || RC=$?
               elif [ "${TEST_KIND}" = "script" ]; then
                 TEST_SCRIPT=$(echo "${TESTS_JSON}" | jq -r ".[$i].script")
-                ocx_test package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/pycowsay:${VERSION}" -m "${METADATA}" ${LAYERS} \
+                ocx_test package test --platform "${TEST_PLATFORM}" --identifier "dev.ocx.sh/ocx/pycowsay:${VERSION}" -m "${METADATA}" ${LAYERS} \
                   --script "${TEST_SCRIPT}" || RC=$?
               else
                 TEST_INLINE=$(echo "${TESTS_JSON}" | jq -r ".[$i].script_inline")
-                printf '%s' "${TEST_INLINE}" | ocx_test package test --platform "${{ matrix.platform }}" --identifier "dev.ocx.sh/ocx/pycowsay:${VERSION}" -m "${METADATA}" ${LAYERS} \
+                printf '%s' "${TEST_INLINE}" | ocx_test package test --platform "${TEST_PLATFORM}" --identifier "dev.ocx.sh/ocx/pycowsay:${VERSION}" -m "${METADATA}" ${LAYERS} \
                   --script - || RC=$?
               fi
               END=$(date +%s)

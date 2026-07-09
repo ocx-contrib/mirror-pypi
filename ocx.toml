@@ -1,4 +1,4 @@
 [tools]
 cli = "dev.ocx.sh/ocx/cli:0.5.0-dev_20260705165012"
-mirror = "dev.ocx.sh/ocx/mirror:0.5.0-dev_20260709054717"
+mirror = "dev.ocx.sh/ocx/mirror:0.5.0-dev_20260709060452"
 uv = "ocx.sh/uv:0"

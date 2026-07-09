@@ -214,7 +214,7 @@ jobs:
               OCX_TRIPLE="${OCX_ARCH}-unknown-linux-${{ matrix.container_libc }}"
               OCX_CONTAINER_BIN="${RUNNER_TEMP}/ocx-${OCX_TRIPLE}/ocx"
               if [ ! -x "${OCX_CONTAINER_BIN}" ]; then
-                curl -fsSL "https://github.com/ocx-sh/ocx/releases/download/v0.4.1/ocx-${OCX_TRIPLE}.tar.xz" \
+                curl -fsSL "https://github.com/ocx-sh/ocx/releases/download/v0.4.2/ocx-${OCX_TRIPLE}.tar.xz" \
                   | tar -xJ -C "${RUNNER_TEMP}"
               fi
               # The gnu ocx verifies TLS against the system CA store, which a

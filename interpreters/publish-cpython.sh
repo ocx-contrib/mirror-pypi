@@ -47,6 +47,17 @@ for platform in "linux/amd64+libc.glibc" "linux/amd64+libc.musl" "darwin/arm64" 
   meta="${META_POSIX}"
   if [ "${platform}" = "windows/amd64" ]; then
     meta="${META_WINDOWS}"
+    # PBS windows install_only ships python.exe but NO python3.exe — while
+    # every composed env entrypoint dispatches `python3`. Without it, PATH
+    # resolution falls through to the WindowsApps Store-alias stub
+    # (python3.exe), which hangs when spawned with piped stdio in CI.
+    # Repack with a python3.exe copy so the composed PATH wins.
+    extract_dir="${WORK}/extract-windows"
+    mkdir -p "${extract_dir}"
+    tar -xzf "${file}" -C "${extract_dir}" python
+    cp "${extract_dir}/python/python.exe" "${extract_dir}/python/python3.exe"
+    file="${WORK}/repacked-windows.tar.gz"
+    tar -czf "${file}" -C "${extract_dir}" python
   fi
 
   # install_only extracts flat as python/{bin,lib,...} (posix) or

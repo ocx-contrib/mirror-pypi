@@ -15,7 +15,7 @@ jobs:
       # OCX_MIRROR_REGISTRY_TOKEN/_USER). Requires ocx.lock committed
       # alongside ocx.toml — `ocx pull` (which setup-ocx runs when ocx.toml
       # is present) exits 78 without it.
-      - uses: ocx-sh/setup-ocx@8cd2f38eed07c9b79aaed22e61f9ba6b36e967a3  # v1.2.2
+      - uses: ocx-sh/setup-ocx@de8e3366f812941423985eaccae28663ef192e8b  # v1.3.0
       - name: Prove dev binary bootstrap
         run: |
           set -euo pipefail

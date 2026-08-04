@@ -1,0 +1,43 @@
+# Mirror spec: streamlit — committed universal lock. Pure top wheel over a
+# heavy 43-package closure: numpy/pandas/pyarrow ship compiled cp314 wheels on
+# every target, so each leg selects its own compiled stack via the universal
+# lock. Console-script entrypoint `streamlit = streamlit.web.cli:main`.
+#
+# No musl key: watchdog (required off-darwin — marker `sys_platform !=
+# 'darwin'`) ships no musllinux and no pure fallback wheel for cp314, so a
+# musl env cannot compose regardless of interpreter. No alpine leg either — a
+# musl container leg with no musl index entry has nothing to test. darwin is
+# fine: the same marker excludes watchdog there.
+name: streamlit
+target:
+  registry: dev.ocx.sh
+  repository: ocx/streamlit
+
+source:
+  type: pylock
+  path: pylock.toml
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ghcr.io/ocx-contrib/astral-sh/python-build-standalone:slim-3.14.6"
+
+wheels:
+  "linux/amd64+libc.glibc": ~
+  darwin/arm64: ~
+  windows/amd64: ~
+
+tests:
+  - name: smoke
+    script: streamlit/tests/smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest
+    containers:
+      - image: fedora:42
+      - image: ubuntu:24.04
+  darwin/arm64:
+    runner: macos-latest
+  windows/amd64:
+    runner: windows-latest

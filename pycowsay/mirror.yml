@@ -1,0 +1,44 @@
+# Mirror spec: pycowsay — live pypi pilot. Index-discovered (no committed
+# lock), universal lock. Pure-python (py3-none-any), so every wheels key uses
+# its key-derived default filter; the glibc/musl split keys publish two
+# os.features entries in one index under one bare tag, each resolving the
+# per-libc entry of the shared interpreter package. Container legs prove both
+# libcs (alpine = musl; fedora + ubuntu = glibc); darwin/windows run the same
+# starlark smoke test natively.
+name: pycowsay
+target:
+  registry: dev.ocx.sh
+  repository: ocx/pycowsay
+
+source:
+  type: pypi
+  package: pycowsay
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ghcr.io/ocx-contrib/astral-sh/python-build-standalone:slim-3.14.6"
+  lock:
+    universal: true
+
+wheels:
+  "linux/amd64+libc.glibc": ~
+  "linux/amd64+libc.musl": ~
+  darwin/arm64: ~
+  windows/amd64: ~
+
+tests:
+  - name: smoke
+    script: pycowsay/tests/smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest
+    containers:
+      - image: alpine:3.20
+      - image: fedora:42
+      - image: ubuntu:24.04
+  darwin/arm64:
+    runner: macos-latest
+  windows/amd64:
+    runner: windows-latest

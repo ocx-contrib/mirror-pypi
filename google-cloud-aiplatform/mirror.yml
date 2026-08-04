@@ -1,0 +1,46 @@
+# Mirror spec: google-cloud-aiplatform[full] — committed universal lock. The
+# hard case: a 142-package closure forming a PEP 420 namespace union (many
+# google.* wheels contribute to the shared google/ tree with no __init__.py).
+# A library (no console script) — validated by a `python` import smoke. The
+# spec name is the PyPI distribution name so pylock's PEP 503 app-name match
+# resolves it.
+#
+# No musl key: google-crc32c and scikit-learn (both required on linux) ship no
+# musllinux and no pure fallback wheel for cp314, so a musl env cannot compose
+# regardless of interpreter. No alpine leg either — a musl container leg with
+# no musl index entry has nothing to test. darwin/windows are fine: the
+# platform-conditional deps (pywin32, uvloop, greenlet) resolve via markers
+# and universal2 wheels.
+name: google-cloud-aiplatform
+target:
+  registry: dev.ocx.sh
+  repository: ocx/google-cloud-aiplatform
+
+source:
+  type: pylock
+  path: pylock.toml
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ghcr.io/ocx-contrib/astral-sh/python-build-standalone:slim-3.14.6"
+
+wheels:
+  "linux/amd64+libc.glibc": ~
+  darwin/arm64: ~
+  windows/amd64: ~
+
+tests:
+  - name: import
+    script: google-cloud-aiplatform/tests/smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest
+    containers:
+      - image: fedora:42
+      - image: ubuntu:24.04
+  darwin/arm64:
+    runner: macos-latest
+  windows/amd64:
+    runner: windows-latest

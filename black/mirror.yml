@@ -1,0 +1,42 @@
+# Mirror spec: black — committed universal lock. black ships compiled mypyc
+# wheels (manylinux/macosx/win) plus a py3-none-any fallback that serves the
+# musl leg; every wheels key keeps its key-derived default filter: each leg
+# selects the best admissible wheel for its platform and falls back to the
+# pure wheel where none exists. The glibc/musl split keys publish two
+# os.features entries in one index under one bare tag. Container legs prove
+# both libcs (alpine = musl; fedora + ubuntu = glibc); darwin/windows test natively.
+name: black
+target:
+  registry: dev.ocx.sh
+  repository: ocx/black
+
+source:
+  type: pylock
+  path: pylock.toml
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ghcr.io/ocx-contrib/astral-sh/python-build-standalone:slim-3.14.6"
+
+wheels:
+  "linux/amd64+libc.glibc": ~
+  "linux/amd64+libc.musl": ~
+  darwin/arm64: ~
+  windows/amd64: ~
+
+tests:
+  - name: smoke
+    script: black/tests/smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest
+    containers:
+      - image: alpine:3.20
+      - image: fedora:42
+      - image: ubuntu:24.04
+  darwin/arm64:
+    runner: macos-latest
+  windows/amd64:
+    runner: windows-latest

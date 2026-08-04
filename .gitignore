@@ -1,6 +1,8 @@
 # Local prepare scratch
 .ocx-mirror/
 prepare-output/
+locks/
+plan.json
 
 # Local artifacts
 *.tar.xz

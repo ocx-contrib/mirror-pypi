@@ -1,0 +1,41 @@
+# Mirror spec: yt-dlp — committed universal lock. Pure-python (a single
+# py3-none-any wheel, no required runtime deps), so every wheels key uses its
+# key-derived default filter. The glibc/musl split keys publish two
+# os.features entries in one index under one bare tag. Container legs prove
+# both libcs (alpine = musl; fedora + ubuntu = glibc); darwin/windows test
+# natively. Console-script entrypoint `yt-dlp = yt_dlp:main`.
+name: yt-dlp
+target:
+  registry: dev.ocx.sh
+  repository: ocx/yt-dlp
+
+source:
+  type: pylock
+  path: pylock.toml
+
+python:
+  version: "3.14.6"
+  abi: cp314
+  interpreter_package: "ghcr.io/ocx-contrib/astral-sh/python-build-standalone:slim-3.14.6"
+
+wheels:
+  "linux/amd64+libc.glibc": ~
+  "linux/amd64+libc.musl": ~
+  darwin/arm64: ~
+  windows/amd64: ~
+
+tests:
+  - name: smoke
+    script: yt-dlp/tests/smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest
+    containers:
+      - image: alpine:3.20
+      - image: fedora:42
+      - image: ubuntu:24.04
+  darwin/arm64:
+    runner: macos-latest
+  windows/amd64:
+    runner: windows-latest
